@@ -1,0 +1,23 @@
+{
+  "name": "broadleaf-demo",
+  "version": "1.0.0",
+  "description": "Broadleaf-Demo should demonstrate end-to-end use of a frontend combined with Signer extension to send messages between two clients",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/George-cl/Broadleaf-Demo.git"
+  },
+  "author": "George-cl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/George-cl/Broadleaf-Demo/issues"
+  },
+  "homepage": "https://github.com/George-cl/Broadleaf-Demo#readme",
+  "dependencies": {
+    "npm": "^7.5.2",
+    "vue": "^3.0.5"
+  }
+}
