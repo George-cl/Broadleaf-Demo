@@ -17,9 +17,7 @@ export default new Router({
       path: "/",
       name: "components",
       components: {
-        header: AppHeader,
-        default: Components,
-        footer: AppFooter
+        default: Landing
       }
     },
     {
