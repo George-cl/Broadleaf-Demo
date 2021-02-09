@@ -1,23 +1,30 @@
 {
-  "name": "broadleaf-demo",
-  "version": "1.0.0",
-  "description": "Broadleaf-Demo should demonstrate end-to-end use of a frontend combined with Signer extension to send messages between two clients",
-  "main": "index.js",
+  "name": "vue-argon-design-system",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/George-cl/Broadleaf-Demo.git"
-  },
-  "author": "George-cl",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/George-cl/Broadleaf-Demo/issues"
-  },
-  "homepage": "https://github.com/George-cl/Broadleaf-Demo#readme",
   "dependencies": {
-    "npm": "^7.5.2",
-    "vue": "^3.0.5"
+    "bootstrap-vue": "^2.0.4",
+    "flatpickr": "^4.5.1",
+    "nouislider": "^11.1.0",
+    "register-service-worker": "^1.5.2",
+    "vue": "^2.6.6",
+    "vue-flatpickr-component": "^8.1.1",
+    "vue-lazyload": "^1.2.6",
+    "vue-router": "^3.0.2",
+    "vue2-transitions": "^0.2.3"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.4.0",
+    "@vue/cli-plugin-eslint": "^3.4.0",
+    "@vue/cli-plugin-pwa": "^3.4.0",
+    "@vue/cli-service": "^3.4.0",
+    "node-sass": "^4.11.0",
+    "sass-loader": "^7.1.0",
+    "vue-template-compiler": "^2.6.6"
   }
 }
