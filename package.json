@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.4",
+    "casper-client-sdk": "^1.0.17",
+    "emoji-picker-element": "^1.4.0",
     "flatpickr": "^4.5.1",
     "nouislider": "^11.1.0",
     "register-service-worker": "^1.5.2",
@@ -16,7 +18,8 @@
     "vue-flatpickr-component": "^8.1.1",
     "vue-lazyload": "^1.2.6",
     "vue-router": "^3.0.2",
-    "vue2-transitions": "^0.2.3"
+    "vue2-transitions": "^0.2.3",
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",
