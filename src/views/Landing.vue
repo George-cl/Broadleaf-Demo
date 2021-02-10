@@ -78,16 +78,17 @@ export default {
   data() {
       return {
           messageText: "",
-          selectedEmoji: "",
+          selectedEmoji: document.querySelector("emoji-picker")
+              .addEventListener('emoji-click', event => console.log(event.detail)),
       }
   },
   computed: {
       message() {
           return this.messageText;
       },
-      emoji() {
-          return this.selectedEmoji;
-      }
+    //   emoji() {
+    //       return this.selectedEmoji;
+    //   }
   },
   methods: {
       async checkConnected() {
