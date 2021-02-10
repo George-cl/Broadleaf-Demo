@@ -21,3 +21,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+# Contract
+/storage-contract/target/**
+/storage-contract/Cargo.lock
