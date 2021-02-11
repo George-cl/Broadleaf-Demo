@@ -1,0 +1,43 @@
+import Vue from "vue";
+import Vuex from "vuex";
+
+Vue.use(Vuex);
+
+export const store = new Vuex.Store({
+  state: {
+    msg_progress: 0,
+    msg_label: "",
+  },
+  getters: {
+      message_progress (state) {
+          return state.msg_progress
+      }
+  },
+  mutations: {
+      inc_progress (state) {
+          state.msg_progress += 10;
+      },
+
+      res_progress (state) {
+          state.msg_progress = 0;
+      },
+
+      set_lbl (state, lblText) {
+          state.msg_label = lblText;
+      }
+
+  },
+  actions: {
+      increment_progress({commit}) {
+          commit('inc_progress');
+      },
+
+      reset_progress({commit}) {
+          commit('res_progress');
+      },
+
+      set_label({commit}, labelText) {
+          commit('set_lbl', labelText);
+      }
+  }
+});

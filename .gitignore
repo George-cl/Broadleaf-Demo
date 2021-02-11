@@ -24,4 +24,6 @@ yarn-error.log*
 
 # Contract
 /storage-contract/target/**
+/storage-contract/contract/target/**
+/storage-contract/tests/wasm/*
 /storage-contract/Cargo.lock

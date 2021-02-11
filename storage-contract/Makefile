@@ -4,6 +4,14 @@ prepare:
 build-contract:
 	cargo build --release -p contract --target wasm32-unknown-unknown
 
+deploy-contract:
+	casper-client put-deploy -v\
+		-n http://localhost:50101 \
+		-k ../src/keys/secret_key.pem \
+		--chain-name casper-net-1 \
+		-s ./target/wasm32-unknown-unknown/release/contract.wasm \
+		-p 10000000000000 | jq
+
 test-only:
 	cargo test -p tests
 
