@@ -1,3 +1,4 @@
+import { sign } from "casper-client-sdk/dist/lib/Signer";
 import Vue from "vue";
 import Vuex from "vuex";
 
@@ -7,10 +8,14 @@ export const store = new Vuex.Store({
   state: {
     msg_progress: 0,
     msg_label: "",
+    msg_approvals: [],
   },
   getters: {
       message_progress (state) {
           return state.msg_progress
+      },
+      message_approvals (state) {
+          return state.msg_approvals
       }
   },
   mutations: {
@@ -24,7 +29,15 @@ export const store = new Vuex.Store({
 
       set_lbl (state, lblText) {
           state.msg_label = lblText;
-      }
+      },
+
+      add_approval (state, sig) {
+          state.msg_approvals.push(sig);
+      },
+
+      clr_approvals (state) {
+          state.msg_approvals = [];
+      },
 
   },
   actions: {
@@ -38,6 +51,14 @@ export const store = new Vuex.Store({
 
       set_label({commit}, labelText) {
           commit('set_lbl', labelText);
+      },
+
+      add_approval({commit}, signature) {
+          commit('add_approval', signature);
+      },
+
+      clear_approvals({commit}) {
+          commit('clr_approvals');
       }
   }
 });

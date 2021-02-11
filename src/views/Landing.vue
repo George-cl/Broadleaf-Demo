@@ -58,7 +58,7 @@
                                         v-if="progress > 0"
                                         id="message-progress" 
                                         type="info"
-                                        height=12 
+                                        height=12
                                         :value=this.progress
                                         :label=this.label>
                                     </base-progress>
@@ -78,10 +78,10 @@
 </template>
 
 <script>
-import { DeployUtil, encodeBase16, Signer } from "casper-client-sdk";
+import { DeployUtil, encodeBase16, Signer, CasperClient } from "casper-client-sdk";
 import { toBytesString } from "casper-client-sdk/dist/lib/byterepr";
 import "emoji-picker-element";
-import { mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 
 
 export default {
@@ -104,12 +104,10 @@ export default {
       message() {
           return this.messageText;
       },
-      ...mapGetters('progress', {
-          messageProgress: 'message_progress'
-      }),
       ...mapState({
           progress: state => state.msg_progress,
           label: state => state.msg_label,
+          approvals: state => state.msg_approvals
       })
   },
   methods: {
@@ -140,7 +138,6 @@ export default {
           let serializedMsg = this.serializeString(message);
           let base16Msg = encodeBase16(serializedMsg);
           let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
-          let deploy = DeployUtil
           
           if (this.progress > 19 && this.progress < 30) {
               this.incrementProgress();
@@ -153,6 +150,9 @@ export default {
               this.incrementProgress();
               this.setProgressLabel("Message signed");
           }
+
+          this.addApproval(sigResponse);
+          return sigResponse;
       },
 
       async systemSignMessage(message) {
@@ -161,13 +161,48 @@ export default {
           let base16Msg = encodeBase16(serializedMsg);
           let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
 
-          Signer.sign(base16Msg, base64PublicKey);
+          if (this.progress > 39 && this.progress < 50) {
+              this.incrementProgress();
+              this.setProgressLabel("System key signing");
+          }
+          let sigResponse = await Signer.sign(base16Msg, base64PublicKey);
+          if (sigResponse && this.progress > 49 && this.progress < 60) {
+              this.incrementProgress();
+              this.setProgressLabel("Signed by system key");
+          }
+
+          this.addApproval(sigResponse);
+          return sigResponse;
       },
 
-      sendMessage() {
-          this.incrementProgress();
+      async constructDeploy() {
+          if (this.approvals.length < 2) {
+              console.error("Insufficient approvals to create deploy (<2): " + this.approvals.length);
+              return
+          }
+          let json = {
+              base16message: encodeBase16(this.serializeString(this.message)),
+              approvals: this.approvals
+          }
+
+          return DeployUtil.deployFromJson(json);
       },
 
+      async putDeploy(deploy) {
+          let client = new CasperClient(
+              'http://localhost:40101',
+              'http://localhost:3000'
+          )
+          return await client.putDeploy(deploy);
+      },
+
+      async sendMessage(message) {
+          await this.systemSignMessage(message);
+          deploy = await this.constructDeploy();
+          deployHash = await this.putDeploy(deploy);
+          await this.checkDeploy(deployHash);
+      },
+      
       // HELPERS  
       serializeString(string) {
           return toBytesString(string);
@@ -189,6 +224,17 @@ export default {
           console.log(event.detail);
       },
 
+      async checkDeploy (deployHash) {
+          let client = new CasperClient(
+              'http://localhost:40101',
+              'http://localhost:3000'
+          );
+          response = await client.getDeployByHash(deployHash);
+          console.log(response);
+          return response;
+      },
+
+      // STORE INTERACTIONS
       incrementProgress() {
           this.$store.dispatch('increment_progress');
       },
@@ -199,6 +245,14 @@ export default {
 
       setProgressLabel(text) {
           this.$store.dispatch('set_label', text);
+      },
+
+      addApproval(signature) {
+          this.$store.dispatch('add_approval', signature);
+      },
+
+      clearApprovals() {
+          this.$store.dispatch('clear_approvals');
       },
 
       clearTextBox() {
