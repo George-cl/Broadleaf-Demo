@@ -4,8 +4,12 @@ prepare:
 build-contract:
 	cargo build --release -p contract --target wasm32-unknown-unknown
 
+copy-keys-from-nctl:
+	cp /home/ethilios/CasperLabs/casper-node/utils/nctl/assets/net-1/nodes/node-2/keys/* ../src/keys
+
 deploy-contract:
-	casper-client put-deploy -v\
+	make copy-keys-from-nctl
+	RUST_BACKTRACE=full casper-client put-deploy -v\
 		-n http://localhost:50101 \
 		-k ../src/keys/secret_key.pem \
 		--chain-name casper-net-1 \

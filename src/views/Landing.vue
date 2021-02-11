@@ -41,7 +41,7 @@
                                             Sign it
                                         </base-button>
                                         <base-button tag="a"
-                                                    @click="sendMessage()"
+                                                    @click="sendMessage(message)"
                                                     class="mb-3 mb-sm-0"
                                                     type="white"
                                                     icon="ni ni-send">
@@ -89,12 +89,6 @@ export default {
   data() {
       return {
 
-          systemKeys:{
-              publicKey: 1,
-              secretKey: 1,
-              publicKeyHex: 1 
-          },
-
           messageText: "",
         //   selectedEmoji: document.querySelector("emoji-picker")
         //     .addEventListener('emoji-click', event => console.log(event.detail))
@@ -123,6 +117,10 @@ export default {
               return;
           }
           Signer.sendConnectionRequest();
+      },
+      
+      createDeploy(message) {
+          DeployUtil.deploy //TODO
       },
 
       async userSignMessage(message) {
@@ -156,7 +154,11 @@ export default {
       },
 
       async systemSignMessage(message) {
-          
+          let client = new CasperClient(
+              'http://localhost:40101',
+              'http://localhost:3000'
+          );
+
           let serializedMsg = this.serializeString(message);
           let base16Msg = encodeBase16(serializedMsg);
           let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
@@ -165,6 +167,8 @@ export default {
               this.incrementProgress();
               this.setProgressLabel("System key signing");
           }
+
+          client.signDeploy()
           let sigResponse = await Signer.sign(base16Msg, base64PublicKey);
           if (sigResponse && this.progress > 49 && this.progress < 60) {
               this.incrementProgress();
