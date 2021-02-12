@@ -225,7 +225,6 @@ export default {
 
       toggleEmojis() {
           let emojis = document.getElementById("emoji-wrapper");
-          alert(emojis.style.display)
           let toggle = emojis.style.display == "none"
             ? "block"
             : "none"
