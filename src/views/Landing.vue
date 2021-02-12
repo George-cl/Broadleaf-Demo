@@ -29,6 +29,7 @@
                                     look like built on the Casper blockchain.
                                 </p>
                                 <form style="margin-top:5%">
+                                    <p class="text-white">Emoji: {{ emoji.unicode }}</p>
                                     <textarea v-model="messageText" id="messageText" class="form-control form-control-alternative" rows="3" placeholder="Enter message here..."></textarea>
                                 </form>
                                 <div style="margin-top:8%;margin-bottom:100%">
@@ -48,7 +49,7 @@
                                             Send it
                                         </base-button>
                                         <base-button tag="a"
-                                                    v-on:click="toggleEmojis()"
+                                                    @click="toggleEmojis()"
                                                     class="mb-3 mb-sm-0"
                                                     type="white"
                                                     icon="ni ni-satisfied">
@@ -65,8 +66,8 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div style="margin-top:20%;">
-                                    <emoji-picker class="light emoji-picker" id="emojis"></emoji-picker>
+                                <div style="margin-top:20%;" id="emoji-wrapper">
+                                    <!-- Emoji-picker will be inserted here on mount -->
                                 </div>
                             </div>
                         </div>
@@ -80,23 +81,33 @@
 <script>
 import { DeployUtil, encodeBase16, Signer, CasperClient } from "casper-client-sdk";
 import { toBytesString } from "casper-client-sdk/dist/lib/byterepr";
-import "emoji-picker-element";
+import { Picker } from "emoji-picker-element";
 import { mapState } from "vuex";
 
 
 export default {
   name: "home",
+  mounted() {
+      (() => {
+          const picker = new Picker();
+          document.getElementById("emoji-wrapper").appendChild(picker);
+          picker.addEventListener('emoji-click', event => {
+              this.handleEmojiClick(event.detail);
+          });
+      })();
+  },
   data() {
       return {
-
           messageText: "",
-        //   selectedEmoji: document.querySelector("emoji-picker")
-        //     .addEventListener('emoji-click', event => console.log(event.detail))
+          selectedEmoji: "",
       }
   },
   computed: {
       message() {
           return this.messageText;
+      },
+      emoji() {
+          return this.selectedEmoji;
       },
       ...mapState({
           progress: state => state.msg_progress,
@@ -137,14 +148,14 @@ export default {
           let base16Msg = encodeBase16(serializedMsg);
           let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
           
-          if (this.progress > 19 && this.progress < 30) {
+          if (this.progress > 29 && this.progress < 40) {
               this.incrementProgress();
               this.setProgressLabel("Signing message");
           }
           // returns base64 signature from the Signer
           let sigResponse = await Signer.sign(base16Msg, base64PublicKey);
 
-          if (sigResponse && this.progress > 29 && this.progress < 40) {
+          if (sigResponse && this.progress > 39 && this.progress < 50) {
               this.incrementProgress();
               this.setProgressLabel("Message signed");
           }
@@ -163,14 +174,14 @@ export default {
           let base16Msg = encodeBase16(serializedMsg);
           let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
 
-          if (this.progress > 39 && this.progress < 50) {
+          if (this.progress > 49 && this.progress < 60) {
               this.incrementProgress();
               this.setProgressLabel("System key signing");
           }
 
           client.signDeploy()
           let sigResponse = await Signer.sign(base16Msg, base64PublicKey);
-          if (sigResponse && this.progress > 49 && this.progress < 60) {
+          if (sigResponse && this.progress > 59 && this.progress < 70) {
               this.incrementProgress();
               this.setProgressLabel("Signed by system key");
           }
@@ -213,7 +224,8 @@ export default {
       },
 
       toggleEmojis() {
-          let emojis = document.getElementById("emojis");
+          let emojis = document.getElementById("emoji-wrapper");
+          alert(emojis.style.display)
           let toggle = emojis.style.display == "none"
             ? "block"
             : "none"
@@ -224,8 +236,22 @@ export default {
           }
       },
 
-      handleEmoji(event) {
-          console.log(event.detail);
+      handleEmojiClick(event) {
+          this.toggleEmojis();
+          if (this.progress > 19 && this.progress < 30) {
+              this.incrementProgress();
+              this.setProgressLabel("Emoji Selected");
+          }
+          this.setEmoji(event.emoji)
+          console.log(event);
+      },
+
+      setEmoji(emoji) {
+          let chosenEmoji = {
+              annotation: emoji.annotation,
+              unicode: emoji.unicode
+          };
+          this.selectedEmoji = chosenEmoji;
       },
 
       async checkDeploy (deployHash) {
@@ -276,13 +302,13 @@ export default {
           this.setProgressLabel("Typing message")
           this.incrementProgress();
       }
-  }
+  },
 };
 </script>
 
 <style>
 
-    #emojis {
+    #emoji-wrapper {
         display: none;
     }
     .emoji-picker {
