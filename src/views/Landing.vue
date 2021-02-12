@@ -144,7 +144,7 @@ export default {
               return
           }
 
-          let serializedMsg = this.serializeString(message);
+          let serializedMsg = toBytesString(message);
           let base16Msg = encodeBase16(serializedMsg);
           let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
           
@@ -170,7 +170,7 @@ export default {
               'http://localhost:3000'
           );
 
-          let serializedMsg = this.serializeString(message);
+          let serializedMsg = toBytesString(message);
           let base16Msg = encodeBase16(serializedMsg);
           let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
 
@@ -196,7 +196,7 @@ export default {
               return
           }
           let json = {
-              base16message: encodeBase16(this.serializeString(this.message)),
+              base16message: encodeBase16(toBytesString(this.message)),
               approvals: this.approvals,
               emoji: this.selectedEmoji
           }
@@ -220,9 +220,6 @@ export default {
       },
       
       // HELPERS  
-      serializeString(string) {
-          return toBytesString(string);
-      },
 
       toggleEmojis() {
           let emojis = document.getElementById("emoji-wrapper");
