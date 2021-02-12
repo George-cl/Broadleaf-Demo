@@ -15,5 +15,6 @@ Deploy structure:
             base64encodedsignature,     // USER key
             base64encodedsignature      // SYSTEM key
         ],
-        message: "This is the message but it will be encoded in base16"
+        message: "This is the message but it will be encoded in base16",
+        emoji: "smiling_face" // Unicode identifier for emoji
     }

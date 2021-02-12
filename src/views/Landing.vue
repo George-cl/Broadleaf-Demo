@@ -197,7 +197,8 @@ export default {
           }
           let json = {
               base16message: encodeBase16(this.serializeString(this.message)),
-              approvals: this.approvals
+              approvals: this.approvals,
+              emoji: this.selectedEmoji
           }
 
           return DeployUtil.deployFromJson(json);
