@@ -2,7 +2,7 @@
     <div>
         <div class="position-relative">
             <!-- shape Hero -->
-            <section class="section-shaped my-0">
+            <section class="section-shaped my-0" style="height: 100vh;">
                 <div class="shape shape-style-1 shape-default">
                     <span></span>
                     <span></span>
@@ -20,6 +20,9 @@
                             <button type="button" class="btn btn-info" v-on:click="connectSigner()">
                                 Connect to Signer
                             </button>
+                            <button type="button" class="btn btn-primary" v-on:click="deployStorageContract()" style="margin-top:1rem">
+                                Deploy Contract
+                            </button>                            
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -79,11 +82,17 @@
 </template>
 
 <script>
-import { DeployUtil, encodeBase16, Signer, CasperClient } from "casper-client-sdk";
-import { toBytesString } from "casper-client-sdk/dist/lib/byterepr";
+import { DeployUtil, Signer, CasperClient, RuntimeArgs } from "casper-client-sdk";
 import { Picker } from "emoji-picker-element";
 import { mapState } from "vuex";
+import { DeployParams } from 'casper-client-sdk/dist/lib/DeployUtil';
+import { Ed25519, SignatureAlgorithm } from 'casper-client-sdk/dist/lib/Keys';
+import { readFileSync } from 'fs';
 
+let client = new CasperClient(
+    'http://localhost:40101',
+    'http://localhost:3000'
+)
 
 export default {
   name: "home",
@@ -100,6 +109,9 @@ export default {
       return {
           messageText: "",
           selectedEmoji: "",
+          casperNodePath: "/home/ethilios/CasperLabs/casper-node/",
+          nodeAddress: this.casperNodePath + "utils/nctl/assets/net-1/nodes/node-1/",
+          sessionCodePath: "../../storage-contract/target/wasm32-unknown-unknown/release/contract.wasm"
       }
   },
   computed: {
@@ -113,7 +125,7 @@ export default {
           progress: state => state.msg_progress,
           label: state => state.msg_label,
           approvals: state => state.msg_approvals
-      })
+      }),
   },
   methods: {
 
@@ -130,94 +142,56 @@ export default {
           Signer.sendConnectionRequest();
       },
       
-      createDeploy(message) {
-          DeployUtil.deploy //TODO
+      makeStorageContractDeploy(accountPublicKey, args = null) {
+          // Allows for access to the Vue instance in other scopes
+          var vm = this;
+          try {
+              
+              let deployParams = new DeployParams(accountPublicKey, "casper-net-1");
+              let sessionCode = new Uint8Array(readFileSync(vm.sessionCodePath, null).buffer);
+              let runtimeArgs = RuntimeArgs.fromMap(args)
+              let sessionModule = DeployUtil.ExecutableDeployItem.newModuleBytes(sessionCode, runtimeArgs);
+              let payment = DeployUtil.standardPayment(100000000000);
+              
+              return DeployUtil.makeDeploy(
+                  deployParams,
+                  sessionModule,
+                  payment
+              );
+
+          } catch {
+              throw new Error("Failed to create deploy!");
+          }
       },
 
-      async userSignMessage(message) {
-        //   this.clearTextBox();
-          if (await this.checkConnected() == false) {
-              alert("Please connect to the Signer first");
-              return
-          } else if (this.message == "") {
-              alert("Please enter a message first");
-              return
-          }
-
-          let serializedMsg = toBytesString(message);
-          let base16Msg = encodeBase16(serializedMsg);
-          let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
-          
-          if (this.progress > 29 && this.progress < 40) {
-              this.incrementProgress();
-              this.setProgressLabel("Signing message");
-          }
-          // returns base64 signature from the Signer
-          let sigResponse = await Signer.sign(base16Msg, base64PublicKey);
-
-          if (sigResponse && this.progress > 39 && this.progress < 50) {
-              this.incrementProgress();
-              this.setProgressLabel("Message signed");
-          }
-
-          this.addApproval(sigResponse);
-          return sigResponse;
+      addSignatureToDeploy(deploy, signingKey) {
+          // return deploy with given signature appended to approvals
+          return DeployUtil.signDeploy(deploy, signingKey);
       },
 
-      async systemSignMessage(message) {
-          let client = new CasperClient(
-              'http://localhost:40101',
-              'http://localhost:3000'
-          );
+      async deployStorageContract() {
+        //   let publicKey = client.loadPublicKeyFromFile(this.nodeAddress + "/keys/public_key.pem", SignatureAlgorithm.Ed25519);
+          try {
+              var publicKeyContent = readFileSync(this.nodeAddress + "/keys/public_key.pem").toString();
+          } catch (error) {
+              console.error(error);
+          };
+          console.log(publicKeyContent);
+          let publicKey = Ed25519.readBase64WithPEM(publicKeyContent);
+          console.log(publicKey);
+          let keyPair = Ed25519.parseKeyFiles(this.nodeAddress + "/keys/public_key.pem", this.nodeAddress + "/keys/secret_key.pem");
+          let unsignedDeploy = this.makeStorageContractDeploy(publicKey);
+          await this.printDeploy(unsignedDeploy.hash);
+          let signedDeploy = this.addSignatureToDeploy(unsignedDeploy, keyPair);
+          await this.printDeploy(signedDeploy.hash);
 
-          let serializedMsg = toBytesString(message);
-          let base16Msg = encodeBase16(serializedMsg);
-          let base64PublicKey = await Signer.getSelectedPublicKeyBase64();
-
-          if (this.progress > 49 && this.progress < 60) {
-              this.incrementProgress();
-              this.setProgressLabel("System key signing");
-          }
-
-          client.signDeploy()
-          let sigResponse = await Signer.sign(base16Msg, base64PublicKey);
-          if (sigResponse && this.progress > 59 && this.progress < 70) {
-              this.incrementProgress();
-              this.setProgressLabel("Signed by system key");
-          }
-
-          this.addApproval(sigResponse);
-          return sigResponse;
+          return await client.putDeploy(signedDeploy);
       },
 
-      async constructDeploy() {
-          if (this.approvals.length < 2) {
-              console.error("Insufficient approvals to create deploy (<2): " + this.approvals.length);
-              return
-          }
-          let json = {
-              base16message: encodeBase16(toBytesString(this.message)),
-              approvals: this.approvals,
-              emoji: this.selectedEmoji
-          }
-
-          return DeployUtil.deployFromJson(json);
+      async printDeploy(deployHash) {
+          console.log(await client.getDeployByHash(deployHash));
       },
 
-      async putDeploy(deploy) {
-          let client = new CasperClient(
-              'http://localhost:40101',
-              'http://localhost:3000'
-          )
-          return await client.putDeploy(deploy);
-      },
-
-      async sendMessage(message) {
-          await this.systemSignMessage(message);
-          deploy = await this.constructDeploy();
-          deployHash = await this.putDeploy(deploy);
-          await this.checkDeploy(deployHash);
-      },
       
       // HELPERS  
 

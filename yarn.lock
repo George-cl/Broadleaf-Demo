@@ -2123,10 +2123,10 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-casper-client-sdk@^1.0.17:
-  version "1.0.19"
-  resolved "https://registry.yarnpkg.com/casper-client-sdk/-/casper-client-sdk-1.0.19.tgz#e9df6f2b604697a471bf9175285ace72d1499ef9"
-  integrity sha512-QnD+edau+Ou6VRzbJpcxX9tnxJW7Zoe9WsYzdHB527L3ovQ58IM0hu4Hd8zJJMtldQx/dyuL5pj2zgnZCJmJnQ==
+casper-client-sdk@^1.0.23:
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/casper-client-sdk/-/casper-client-sdk-1.0.23.tgz#ebdb1ba632a79c3302321317fd4df4f76eb7344f"
+  integrity sha512-qql5MtEnH+kfHIfaXOdJaRZUduLd4cfggvP4JsWxAKyJqWKeVeLYJAMdThmPiswoVfzT3YdaQij2f3l/1LVAbg==
   dependencies:
     "@ethersproject/bignumber" "^5.0.8"
     "@ethersproject/bytes" "^5.0.5"

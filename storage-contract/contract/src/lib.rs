@@ -1,6 +1,7 @@
 extern crate alloc;
 use alloc::{collections::BTreeSet, string::String};
 use std::convert::TryInto;
+use serde_json::json;
 
 use casperlabs_contract_macro::{casperlabs_constructor, casperlabs_contract, casperlabs_method};
 
@@ -10,10 +11,9 @@ use contract::{
 };
 
 use types::{
-    account::AccountHash,
     bytesrepr::ToBytes,
     contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
-    runtime_args, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, URef, U512,
+    runtime_args, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, URef,
 };
 
 #[casperlabs_contract]
@@ -23,28 +23,14 @@ mod kvstorage_contract {
     fn init() {}
 
     #[casperlabs_method]
-    fn store_u64(name: String, value: u64) {
-        set_key(name.as_str(), value);
-    }
-
-    #[casperlabs_method]
-    fn store_u512(name: String, value: U512) {
-        set_key(name.as_str(), value);
-    }
-
-    #[casperlabs_method]
-    fn store_string(name: String, value: String) {
-        set_key(name.as_str(), value);
-    }
-
-    #[casperlabs_method]
-    fn store_account_hash(name: String, value: AccountHash) {
-        set_key(name.as_str(), value);
-    }
-
-    #[casperlabs_method]
-    fn store_bytes(name: String, value: Vec<u8>) {
-        set_key(name.as_str(), value);
+    fn store_user_message(user_public_key: String, message_content: String, message_emoji: String) {
+        
+        let message = json!({
+            "user_public_key": user_public_key,
+            "message_content": message_content,
+            "message_emoji": message_emoji
+        });
+        set_key(user_public_key.as_str(), message.to_string());
     }
 
     fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
