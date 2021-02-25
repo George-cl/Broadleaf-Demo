@@ -23,8 +23,5 @@ yarn-error.log*
 *.sw*
 
 # Contract
-/storage-contract/target/**
-/storage-contract/contract/target/**
-/storage-contract/tests/wasm/*
-/storage-contract/tests/target/*
-/storage-contract/Cargo.lock
+contract/broadleaf-messenger/contract/target/*
+contract/broadleaf-messenger/contract/Cargo.lock
