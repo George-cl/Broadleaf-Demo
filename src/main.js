@@ -20,6 +20,7 @@ import Landing from "./views/Landing";
 import { store } from "./store";
 import Argon from "./plugins/argon-kit";
 
+
 Vue.config.productionTip = false;
 Vue.use(Argon);
 

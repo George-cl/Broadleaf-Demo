@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.4",
-    "casper-client-sdk": "^1.0.17",
+    "casper-client-sdk": "^1.0.23",
     "emoji-picker-element": "^1.4.0",
     "flatpickr": "^4.5.1",
     "nouislider": "^11.1.0",
