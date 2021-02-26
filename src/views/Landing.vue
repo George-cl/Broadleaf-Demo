@@ -20,9 +20,9 @@
                             <button type="button" class="btn btn-info" v-on:click="connectSigner()">
                                 Connect to Signer
                             </button>
-                            <button type="button" class="btn btn-primary" v-on:click="deployStorageContract()" style="margin-top:1rem">
+                            <!-- <button type="button" class="btn btn-primary" v-on:click="deployStorageContract()" style="margin-top:1rem">
                                 Deploy Contract
-                            </button>                            
+                            </button>                             -->
                         </div>
                         <div class="row">
                             <div class="col-md-6">

@@ -14,6 +14,7 @@ use casper_contract::{
 use casper_types::{Key, URef};
 
 const SENDER: &str = "sender";
+const RECIPIENT: &str = "recipient";
 const MESSAGE: &str = "message";
 const EMOJI: &str = "emoji";
 
@@ -33,9 +34,12 @@ fn store_kv_pair(key: String, value: String) {
 pub extern "C" fn call() {
     // Get the optional first argument supplied to the argument.
     let sender: String = runtime::get_named_arg(SENDER);
+    let recipient: String = runtime::get_named_arg(RECIPIENT);
     let message: String = runtime::get_named_arg(MESSAGE);
     let emoji: String = runtime::get_named_arg(EMOJI);
     let json_msg = json!({
+        "from": sender,
+        "to": recipient,
         "message": message,
         "emoji": emoji
     });
