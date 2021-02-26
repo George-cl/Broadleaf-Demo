@@ -3,6 +3,7 @@ casper-client put-deploy \
 --secret-key ~/CasperLabs/casper-node/utils/nctl/assets/net-1/faucet/secret_key.pem \
 --chain-name casper-net-1 \
 --session-path ~/CasperLabs/Broadleaf-Demo/contract/broadleaf-messenger/contract/target/wasm32-unknown-unknown/release/contract.wasm \
---session-arg "sender:string='Sender:George'" \
---session-arg "message:string='Message:Hey hows it going for you?" \
+--session-arg "sender:string='George'" \
+--session-arg "message:string='Hello World!" \
+--session-arg "emoji:string='smiling face'" \
 --payment-amount 1000000000 | jq

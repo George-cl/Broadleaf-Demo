@@ -3,6 +3,10 @@
     crate_type = "target arch should be wasm32"
 )]
 #![no_main]
+extern crate alloc;
+
+use alloc::string::String;
+use serde_json::json;
 
 use casper_contract::{
     contract_api::{runtime, storage},
@@ -11,6 +15,7 @@ use casper_types::{Key, URef};
 
 const SENDER: &str = "sender";
 const MESSAGE: &str = "message";
+const EMOJI: &str = "emoji";
 
 fn store_kv_pair(key: String, value: String) {
     // Store `value` under a new unforgeable reference.
@@ -27,7 +32,13 @@ fn store_kv_pair(key: String, value: String) {
 #[no_mangle]
 pub extern "C" fn call() {
     // Get the optional first argument supplied to the argument.
-    let value: String = runtime::get_named_arg(MESSAGE);
-    let key: String = runtime::get_named_arg(SENDER);
-    store_kv_pair(key, value);
+    let sender: String = runtime::get_named_arg(SENDER);
+    let message: String = runtime::get_named_arg(MESSAGE);
+    let emoji: String = runtime::get_named_arg(EMOJI);
+    let json_msg = json!({
+        "message": message,
+        "emoji": emoji
+    });
+
+    store_kv_pair(sender, json_msg.to_string());
 }

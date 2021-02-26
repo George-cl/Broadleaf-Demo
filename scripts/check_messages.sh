@@ -1,6 +1,6 @@
 casper-client query-state \
 -n http://127.0.0.1:40101 \
---state-root-hash 78a73b75d32bf0d43bbd9bc4acbf227c91fd7e444cba8e9a162a08af1f58be4a \
---key 013037f71429b16b5c28af7f7175b5298500e30a8b654521d64eed4d39af118691 \
---query-path "Sender:George" \
-| jq -r '.result.stored_value.CLValue.parsed'
+--state-root-hash 6ff6da1a1e570ecb5a0603b22b5f26ae13e82f7420efc0ce79763b1c4ebf5454 \
+--key 01a8203800ced6be79bedac72f6ce13049eb5bbbb7205a7e9b63e1a3d76ea162cd \
+--query-path "George" \
+| jq -r '.result.stored_value.CLValue.parsed' | jq

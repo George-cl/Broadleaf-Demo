@@ -38,14 +38,14 @@
                                 <div style="margin-top:8%;margin-bottom:100%">
                                     <div class="btn-wrapper">
                                         <base-button tag="a"
-                                                    v-on:click="userSignMessage(message)"
+                                                    v-on:click="createMessage(message)"
                                                     class="mb-3 mb-sm-0"
                                                     type="info"
                                                     icon="ni ni-key-25">
                                             Sign it
                                         </base-button>
                                         <base-button tag="a"
-                                                    @click="sendMessage(message)"
+                                                    @click="sendMessage()"
                                                     class="mb-3 mb-sm-0"
                                                     type="white"
                                                     icon="ni ni-send">
@@ -82,17 +82,14 @@
 </template>
 
 <script>
-import { DeployUtil, Signer, CasperClient, RuntimeArgs } from "casper-client-sdk";
 import { Picker } from "emoji-picker-element";
 import { mapState } from "vuex";
-import { DeployParams } from 'casper-client-sdk/dist/lib/DeployUtil';
-import { Ed25519, SignatureAlgorithm } from 'casper-client-sdk/dist/lib/Keys';
-import { readFileSync } from 'fs';
 
-let client = new CasperClient(
-    'http://localhost:40101',
-    'http://localhost:3000'
-)
+import { CLValue, Signer } from "casper-client-sdk";
+import { buildMessengerDeploy, sendMessengerDeploy } from "../deploy-utils";
+
+// Set faucet key
+const faucetPublicKey = '013037f71429b16b5c28af7f7175b5298500e30a8b654521d64eed4d39af118691';
 
 export default {
   name: "home",
@@ -109,9 +106,8 @@ export default {
       return {
           messageText: "",
           selectedEmoji: "",
-          casperNodePath: "/home/ethilios/CasperLabs/casper-node/",
-          nodeAddress: this.casperNodePath + "utils/nctl/assets/net-1/nodes/node-1/",
-          sessionCodePath: "../../storage-contract/target/wasm32-unknown-unknown/release/contract.wasm"
+          messageDeploy: "",
+          processedDeployHash: "",
       }
   },
   computed: {
@@ -120,6 +116,12 @@ export default {
       },
       emoji() {
           return this.selectedEmoji;
+      },
+      deploy() {
+          return this.messageDeploy;
+      },
+      deployHash() {
+          return this.processedDeployHash;
       },
       ...mapState({
           progress: state => state.msg_progress,
@@ -141,58 +143,31 @@ export default {
           }
           Signer.sendConnectionRequest();
       },
-      
-      makeStorageContractDeploy(accountPublicKey, args = null) {
-          // Allows for access to the Vue instance in other scopes
-          var vm = this;
-          try {
-              
-              let deployParams = new DeployParams(accountPublicKey, "casper-net-1");
-              let sessionCode = new Uint8Array(readFileSync(vm.sessionCodePath, null).buffer);
-              let runtimeArgs = RuntimeArgs.fromMap(args)
-              let sessionModule = DeployUtil.ExecutableDeployItem.newModuleBytes(sessionCode, runtimeArgs);
-              let payment = DeployUtil.standardPayment(100000000000);
-              
-              return DeployUtil.makeDeploy(
-                  deployParams,
-                  sessionModule,
-                  payment
-              );
 
-          } catch {
-              throw new Error("Failed to create deploy!");
+      async getUserKey() {
+          if (await this.checkConnected()) {
+              return await Signer.getSelectedPublicKeyBase64();
           }
+          alert("Please connect to the Signer first!");
+          return;
       },
 
-      addSignatureToDeploy(deploy, signingKey) {
-          // return deploy with given signature appended to approvals
-          return DeployUtil.signDeploy(deploy, signingKey);
+      async createMessage() {
+          let key = await this.getUserKey();
+          let msg = this.message;
+          let emj = this.emoji.annotation;
+
+          this.messageDeploy = buildMessengerDeploy(this.faucetPublicKey, {
+              sender: CLValue.string(key),
+              message: CLValue.string(msg),
+              emoji: CLValue.string(emj)
+          });
       },
 
-      async deployStorageContract() {
-        //   let publicKey = client.loadPublicKeyFromFile(this.nodeAddress + "/keys/public_key.pem", SignatureAlgorithm.Ed25519);
-          try {
-              var publicKeyContent = readFileSync(this.nodeAddress + "/keys/public_key.pem").toString();
-          } catch (error) {
-              console.error(error);
-          };
-          console.log(publicKeyContent);
-          let publicKey = Ed25519.readBase64WithPEM(publicKeyContent);
-          console.log(publicKey);
-          let keyPair = Ed25519.parseKeyFiles(this.nodeAddress + "/keys/public_key.pem", this.nodeAddress + "/keys/secret_key.pem");
-          let unsignedDeploy = this.makeStorageContractDeploy(publicKey);
-          await this.printDeploy(unsignedDeploy.hash);
-          let signedDeploy = this.addSignatureToDeploy(unsignedDeploy, keyPair);
-          await this.printDeploy(signedDeploy.hash);
-
-          return await client.putDeploy(signedDeploy);
+      async sendMessage() {
+          this.processedDeployHash = await sendMessengerDeploy(this.messageDeploy, this.faucetPublicKey);
       },
 
-      async printDeploy(deployHash) {
-          console.log(await client.getDeployByHash(deployHash));
-      },
-
-      
       // HELPERS  
 
       toggleEmojis() {
@@ -214,7 +189,7 @@ export default {
               this.setProgressLabel("Emoji Selected");
           }
           this.setEmoji(event.emoji)
-          console.log(event);
+          console.log(this.emoji.annotation);
       },
 
       setEmoji(emoji) {
@@ -223,16 +198,6 @@ export default {
               unicode: emoji.unicode
           };
           this.selectedEmoji = chosenEmoji;
-      },
-
-      async checkDeploy (deployHash) {
-          let client = new CasperClient(
-              'http://localhost:40101',
-              'http://localhost:3000'
-          );
-          response = await client.getDeployByHash(deployHash);
-          console.log(response);
-          return response;
       },
 
       // STORE INTERACTIONS
