@@ -23,5 +23,7 @@ yarn-error.log*
 *.sw*
 
 # Contract
-contract/broadleaf-messenger/contract/target/*
-contract/broadleaf-messenger/contract/Cargo.lock
+contract/session/contract/target/*
+contract/session/contract/Cargo.lock
+contract/stored/contract/target/*
+contract/stored/contract/Cargo.lock

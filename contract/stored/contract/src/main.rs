@@ -42,7 +42,7 @@ pub extern "C" fn call() {
             EntryPointAccess::Public,
             EntryPointType::Contract,
         );
-        entry_points.add_entry_point(entry_point);
+        entry_points.add_entry_point(ep_send_msg);
 
         let ep_get_msg = EntryPoint::new(
             EP_GET_MSG.to_string(),
@@ -51,7 +51,7 @@ pub extern "C" fn call() {
             EntryPointAccess::Public,
             EntryPointType::Contract,
         );
-        entry_points.add_entry_point(entry_point);
+        entry_points.add_entry_point(ep_get_msg);
 
         entry_points
     };
