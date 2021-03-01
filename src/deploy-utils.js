@@ -25,6 +25,7 @@ const buildMessengerDeploy = (accountPublicKey, args) => {
     return DeployUtil.makeDeploy(deployParams, sessionModule, payment);
 };
 
+// signingKeys should be array of KeyPairs
 const sendMessengerDeploy = async (deploy, signingKeys) => {
     for(let key of signingKeys){
         console.log(`Signed by: ${toAccountHashString(key.publicKey)}`);
