@@ -66,6 +66,10 @@
                                         :value=this.progress
                                         :label=this.label>
                                     </base-progress>
+                                    <div id="response-area">
+                                        <li>Deploy Hash: <b>a752439c43b8dc60e475ee651b0234339e77114d81909b3a999fd1caa0bf32db</b></li>
+                                        <li>Status: <b>Sent</b></li>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -165,7 +169,10 @@ export default {
       },
 
       async sendMessage() {
-          this.processedDeployHash = await sendMessengerDeploy(this.messageDeploy, this.faucetPublicKey);
+          this.processedDeployHash = await sendMessengerDeploy(
+              this.messageDeploy,
+              [this.faucetKeyPair]
+        );
       },
 
       // HELPERS  
@@ -258,5 +265,15 @@ export default {
     }
     #message-progress .progress-percentage span {
         color: azure;
+    }
+    #response-area {
+        margin-top: 1rem;
+        padding: .5rem;
+        background-color: azure;
+        opacity: 60%;
+        border-radius: 15px;
+    }
+    #response-area li{
+        word-wrap: break-word;
     }
 </style>

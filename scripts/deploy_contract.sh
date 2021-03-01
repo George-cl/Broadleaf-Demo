@@ -5,6 +5,6 @@ casper-client put-deploy \
 --session-path ~/CasperLabs/Broadleaf-Demo/contract/broadleaf-messenger/contract/target/wasm32-unknown-unknown/release/contract.wasm \
 --session-arg "sender:string='John'" \
 --session-arg "recipient:string='Fraser'" \
---session-arg "message:string='Hello World!" \
+--session-arg "message:string='Hello World!'" \
 --session-arg "emoji:string=':smiling-face:'" \
 --payment-amount 1000000000 | jq
