@@ -16,7 +16,7 @@ const EP_GET_MSG: &str = "getMessage";
 const HASH_KEY_NAME: &str = "bl_messenger_hash";
 const PACKAGE_HASH_KEY_NAME: &str = "bl_messenger_package_hash";
 const ACCESS_KEY_NAME: &str = "bl_messenger_access";
-const CONTRACT_VERSION: &str = "0_1_0";
+const CONTRACT_VERSION: &str = "bl_messenger_version";
 
 #[no_mangle]
 pub extern "C" fn sendMessage() {
