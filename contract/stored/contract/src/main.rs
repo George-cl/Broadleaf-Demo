@@ -11,6 +11,7 @@ use casper_types::{
     CLType, EntryPointAccess, EntryPointType,
 };
 
+// EP = Entry Point
 const EP_SEND_MSG: &str = "sendMessage";
 const EP_GET_MSG: &str = "getMessage";
 const HASH_KEY_NAME: &str = "bl_messenger_hash";
