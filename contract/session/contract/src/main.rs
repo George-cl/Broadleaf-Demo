@@ -3,6 +3,10 @@
     crate_type = "target arch should be wasm32"
 )]
 #![no_main]
+extern crate alloc;
+
+use alloc::string::String;
+use serde_json::json;
 
 use casper_contract::{
     contract_api::{runtime, storage},
@@ -10,24 +14,38 @@ use casper_contract::{
 use casper_types::{Key, URef};
 
 const SENDER: &str = "sender";
+const RECIPIENT: &str = "recipient";
 const MESSAGE: &str = "message";
+const EMOJI: &str = "emoji";
 
-fn store_kv_pair(key: String, value: String) {
-    // Store `value` under a new unforgeable reference.
-    let value_ref: URef = storage::new_uref(value);
+fn store_message(sender: String, message: String) {
+    
+    // Store `message` under a new unforgeable reference.
+    let message_ref: URef = storage::new_uref(message);
 
     // Wrap the unforgeable reference in a value of type `Key`.
-    let value_key: Key = value_ref.into();
+    let message_key: Key = message_ref.into();
 
-    // Store this key under the name "special_value" in context-local storage.
-    runtime::put_key(&key, value_key);
+    runtime::put_key(&sender, message_key);
 }
 
 // All session code must have a `call` entrypoint.
 #[no_mangle]
 pub extern "C" fn call() {
-    // Get the optional first argument supplied to the argument.
-    let value: String = runtime::get_named_arg(MESSAGE);
-    let key: String = runtime::get_named_arg(SENDER);
-    store_kv_pair(key, value);
+
+    // Get arguments passed in during contract call
+    let sender: String = runtime::get_named_arg(SENDER);
+    let recipient: String = runtime::get_named_arg(RECIPIENT);
+    let message: String = runtime::get_named_arg(MESSAGE);
+    let emoji: String = runtime::get_named_arg(EMOJI);
+
+    // Format to JSON to make parsing easier
+    let json_msg = json!({
+        "from": sender,
+        "to": recipient,
+        "message": message,
+        "emoji": emoji
+    });
+
+    store_message(sender, json_msg.to_string());
 }
